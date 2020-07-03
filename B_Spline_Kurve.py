@@ -33,8 +33,7 @@ class B_Spline_Kurve:
 
         # make a window
         self.width, self.height = 640, 480
-        self.aspectwidth = float(self.width) / self.height
-        self.aspectheight = float(self.height) / self.width
+        self.aspectwidth = float(self.width) / float(self.height)
         self.window = glfw.create_window(
             self.width, self.height, "2D Graphics", None, None)
         if not self.window:
@@ -51,8 +50,6 @@ class B_Spline_Kurve:
         glMatrixMode(GL_PROJECTION)
         glMatrixMode(GL_MODELVIEW)
 
-        # glLoadIdentity()
-
         # set window callbacks
         glfw.set_mouse_button_callback(self.window, self.onMouseButton)
         glfw.set_cursor_pos_callback(self.window, self.onMouseMove)
@@ -60,29 +57,29 @@ class B_Spline_Kurve:
 
         # create 3D
         self.scene = Scene(self.width, self.height)
-        self.mousePos = (0, 0)
 
         # exit flag
         self.exitNow = False
 
         # mouse
         self.leftMouseClicked = False
+        self.mousePos = (0, 0)
 
     def onMouseButton(self, win, button, action, mods):
-        r = min(self.width, self.height) / 2.0
         print("mouse button: ", win, button, action, mods)
 
         if button == glfw.MOUSE_BUTTON_LEFT:
             if action == glfw.PRESS:
                 self.leftMouseClicked = True
             elif action == glfw.RELEASE:
-                # Scene..
+                self.scene.addPoint(self.mousePos[0], self.mousePos[1])
                 self.leftMouseClicked = False
 
     def onMouseMove(self, win, posX, posY):
-        x = posX
-        y = posY
+        x = posX / self.width * 2 - 1
+        y = (posY / self.height * 2 - 1) * (-1)
         self.mousePos = (x, y)
+        print(self.mousePos)
 
     def onKeyboard(self, win, key, scancode, action, mods):
         print("keyboard: ", win, key, scancode, action, mods)
@@ -91,13 +88,18 @@ class B_Spline_Kurve:
             if key == glfw.KEY_ESCAPE:
                 self.exitNow = True
 
-            # Ordnung der Kurve
-            if key == glfw.KEY_K:
-                return
-
-            # Anzahl zu berechnender Kurvenpunkte
-            if key == glfw.KEY_M:
-                return
+            # Ordnung der Kurve verringern
+            if key == glfw.KEY_K and not mods == glfw.MOD_SHIFT:
+                print("k")
+             # Ordnung der Kurve erhöhen
+            if key == glfw.KEY_K and mods == glfw.MOD_SHIFT:
+                print("K")
+            # Anzahl zu berechnender Kurvenpunkte verringern
+            if key == glfw.KEY_M and not mods == glfw.MOD_SHIFT:
+                print("m")
+            # Anzahl zu berechnender Kurvenpunkte erhöhen
+            if key == glfw.KEY_M and mods == glfw.MOD_SHIFT:
+                print("M")
 
     def run(self):
         # initializer timer
