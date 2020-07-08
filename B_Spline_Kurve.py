@@ -91,15 +91,23 @@ class B_Spline_Kurve:
             # Ordnung der Kurve verringern
             if key == glfw.KEY_K and not mods == glfw.MOD_SHIFT:
                 print("k")
+                self.scene.k -= 1
+                self.scene.drawCurve()
              # Ordnung der Kurve erhöhen
             if key == glfw.KEY_K and mods == glfw.MOD_SHIFT:
                 print("K")
+                self.scene.k += 1
+                self.scene.drawCurve()
             # Anzahl zu berechnender Kurvenpunkte verringern
             if key == glfw.KEY_M and not mods == glfw.MOD_SHIFT:
                 print("m")
+                self.scene.m -= 1
+                self.scene.drawCurve()
             # Anzahl zu berechnender Kurvenpunkte erhöhen
             if key == glfw.KEY_M and mods == glfw.MOD_SHIFT:
                 print("M")
+                self.scene.m += 1
+                self.scene.drawCurve()
 
     def run(self):
         # initializer timer
