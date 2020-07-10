@@ -46,7 +46,7 @@ class B_Spline_Kurve:
         # initialize GL
         glViewport(0, 0, self.width, self.height)
         glEnable(GL_DEPTH_TEST)
-        glClearColor(1.0, 1.0, 1.0, 1.0)
+        glClearColor(0.0, 0.0, 0.0, 1.0)
         glMatrixMode(GL_PROJECTION)
         glMatrixMode(GL_MODELVIEW)
 
@@ -56,7 +56,7 @@ class B_Spline_Kurve:
         glfw.set_key_callback(self.window, self.onKeyboard)
 
         # create 3D
-        self.scene = Scene(self.width, self.height)
+        self.scene = Scene()
 
         # exit flag
         self.exitNow = False
@@ -66,46 +66,72 @@ class B_Spline_Kurve:
         self.mousePos = (0, 0)
 
     def onMouseButton(self, win, button, action, mods):
-        print("mouse button: ", win, button, action, mods)
+        # print("mouse button: ", win, button, action, mods)
 
-        if button == glfw.MOUSE_BUTTON_LEFT:
+        if button == glfw.MOUSE_BUTTON_LEFT and not mods == glfw.MOD_SHIFT:
+            if action == glfw.RELEASE:
+                print("Punkt gesetzt")
+                self.scene.addPoint(self.mousePos[0], self.mousePos[1])
+
+        if button == glfw.MOUSE_BUTTON_LEFT and mods == glfw.MOD_SHIFT:
             if action == glfw.PRESS:
                 self.leftMouseClicked = True
             elif action == glfw.RELEASE:
-                self.scene.addPoint(self.mousePos[0], self.mousePos[1])
                 self.leftMouseClicked = False
+                self.scene.onPoint = False
 
     def onMouseMove(self, win, posX, posY):
         x = posX / self.width * 2 - 1
         y = (posY / self.height * 2 - 1) * (-1)
         self.mousePos = (x, y)
-        print(self.mousePos)
+        if(self.leftMouseClicked):
+            if self.scene.onPoint:
+                if self.scene.lastPos[1] > self.mousePos[1]:
+                    actWeight = self.scene.pointsWeight[self.scene.idxPoint]
+                    oldWeight = actWeight[3]
+                    if oldWeight > 1:
+                        newWeight = oldWeight - 0.25
+                        actWeight[3] = newWeight
+                else:
+                    actWeight = self.scene.pointsWeight[self.scene.idxPoint]
+                    oldWeight = actWeight[3]
+                    if oldWeight < 10:
+                        newWeight = oldWeight + 0.25
+                        actWeight[3] = newWeight
+                self.scene.pointsWeight[self.scene.idxPoint] = actWeight
+                self.scene.lastPos = self.mousePos
+                self.scene.drawCurve()
+            else:
+                self.scene.getPoint(self.mousePos[0], self.mousePos[1])
 
     def onKeyboard(self, win, key, scancode, action, mods):
-        print("keyboard: ", win, key, scancode, action, mods)
+        # print("keyboard: ", win, key, scancode, action, mods)
         if action == glfw.PRESS:
             # ESC to quit
             if key == glfw.KEY_ESCAPE:
                 self.exitNow = True
 
-            # Ordnung der Kurve verringern
+           # Ordnung der Kurve verringern
             if key == glfw.KEY_K and not mods == glfw.MOD_SHIFT:
-                print("k")
+                print("[k]:", self.scene.k, "Ordnung")
                 self.scene.k -= 1
                 self.scene.drawCurve()
+
              # Ordnung der Kurve erhöhen
             if key == glfw.KEY_K and mods == glfw.MOD_SHIFT:
-                print("K")
+                print("[K]:", self.scene.k, "Ordnung")
                 self.scene.k += 1
                 self.scene.drawCurve()
+
             # Anzahl zu berechnender Kurvenpunkte verringern
             if key == glfw.KEY_M and not mods == glfw.MOD_SHIFT:
-                print("m")
+                print("[m]:", self.scene.m, "Kurvenpunkte")
                 self.scene.m -= 1
                 self.scene.drawCurve()
+
             # Anzahl zu berechnender Kurvenpunkte erhöhen
             if key == glfw.KEY_M and mods == glfw.MOD_SHIFT:
-                print("M")
+                print("[M]:", self.scene.m, "Kurvenpunkte")
                 self.scene.m += 1
                 self.scene.drawCurve()
 
